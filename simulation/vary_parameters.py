@@ -7,7 +7,7 @@ def generate_parameter_variators():
       "Energy Range [meV]",
       min_value=1570.0,
       max_value=1600.0,
-      value=(1580.0, 1590.0),
+      value=(1580.0, 1600.0),
       step=0.1
   )
 
@@ -41,7 +41,7 @@ def generate_parameter_variators():
       "Power",
       min_value=0.0001,
       max_value=4.0,
-      value=0.85,
+      value=3.0,
       step=0.0001
   )
 
@@ -61,6 +61,15 @@ def generate_parameter_variators():
       step=0.01
   )
 
+  prominence = st.sidebar.slider(
+    "Prominence",
+    min_value=0.01,
+    max_value=10.0,
+    value=0.7,
+    step=0.01,
+    help="Required prominence of peaks."
+  )
+
   return (
     energies,
     exciton_energy, 
@@ -68,5 +77,6 @@ def generate_parameter_variators():
     fine_structure_splitting,
     power,
     polarizer_angle_deg, 
-    noise
+    noise,
+    prominence
   )

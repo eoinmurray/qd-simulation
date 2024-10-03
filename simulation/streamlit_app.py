@@ -20,7 +20,8 @@ from vary_parameters import generate_parameter_variators
     fine_structure_splitting,
     power,
     polarizer_angle_deg, 
-    noise
+    noise,
+    prominence
 ) = generate_parameter_variators()
 
 parameters = generate_parameters(
@@ -42,14 +43,6 @@ spectrum = generate_quantum_dot_spectrum(
 
 st.sidebar.header("Peak Detection Parameters")
 
-prominence = st.sidebar.slider(
-    "Prominence",
-    min_value=0.01,
-    max_value=10.0,
-    value=0.1,
-    step=0.01,
-    help="Required prominence of peaks."
-)
 
 peaks, properties = find_peaks(spectrum, prominence=prominence, distance=20)
 

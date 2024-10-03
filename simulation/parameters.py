@@ -26,7 +26,7 @@ def generate_parameters(
             "linewidth": exciton_linewidth,
             "fss": fine_structure_splitting,
             "power_dependence": 2.7,
-            "intensity_scaling": 2.0,
+            "intensity_scaling": 1.0,
         },
         {
             "name": "X+hot",
@@ -34,8 +34,8 @@ def generate_parameters(
             "energy_formula": "e_x - 8.40923 + (0.0037 * e_x)",
             "linewidth": exciton_linewidth,
             "fss": fine_structure_splitting,
-            "power_dependence": 3.0,
-            "intensity_scaling": 0.3,
+            "power_dependence": 1.5,
+            "intensity_scaling": 1.0,
         },
         {
             "name": "X+hot+excited",
@@ -43,8 +43,8 @@ def generate_parameters(
             "energy_formula": "e_x + 3.0",
             "linewidth": exciton_linewidth,
             "fss": fine_structure_splitting,
-            "power_dependence": 3.0,
-            "intensity_scaling": 0.1,
+            "power_dependence": 1.0,
+            "intensity_scaling": 1.0,
         },
         {
             "name": "X* (excited neutral)",
@@ -53,7 +53,7 @@ def generate_parameters(
             "linewidth": exciton_linewidth,
             "fss": fine_structure_splitting,
             "power_dependence": 1.0,
-            "intensity_scaling": 0.1,
+            "intensity_scaling": 1.0,
         },
         {
             "name": "XX",
@@ -62,7 +62,7 @@ def generate_parameters(
             "linewidth": exciton_linewidth,
             "fss": fine_structure_splitting,
             "power_dependence": 2.1,
-            "intensity_scaling": 0.3,
+            "intensity_scaling": 1.0,
         },
         {
             "name": "XX+",
@@ -71,7 +71,7 @@ def generate_parameters(
             "linewidth": exciton_linewidth,
             "fss": fine_structure_splitting,
             "power_dependence": 2.0,
-            "intensity_scaling": 0.3,
+            "intensity_scaling": 1.0,
         },
     ]
 
