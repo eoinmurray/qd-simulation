@@ -9,15 +9,21 @@ from vary_parameters import generate_parameter_variators
 from generate import generate_data, generate_qd_data
 import matplotlib.pyplot as plt
 
+if torch.cuda.is_available():
+    device = torch.device("cuda")
+else:
+    device = torch.device("cpu")
+
 # Set the latent space size variable
 latent_space_size = 32  # You can change this value to any desired latent space size
 
 # Generate data
+num_epochs = 50
 num_samples = 200
 seq_length = 1000
 data = generate_data(num_samples, seq_length)
 qd_data, parameters = generate_qd_data(num_samples, seq_length)
-print(data.shape, qd_data.shape)
+
 data = qd_data
 
 # Data standardization (mean-zero normalization)
@@ -27,6 +33,7 @@ data = (data - data_mean) / data_std
 
 # Convert data to PyTorch tensors
 data = torch.tensor(data, dtype=torch.float32).unsqueeze(1)  # Shape: (batch_size, 1, seq_length)
+data = data.to(device)
 
 # Create DataLoader
 batch_size = 32
@@ -128,14 +135,12 @@ class Conv1dAutoEncoder(nn.Module):
         return d1
 
 # Initialize the model with sequence length and latent space size
-model = Conv1dAutoEncoder(seq_length=seq_length, latent_space_size=latent_space_size)
+model = Conv1dAutoEncoder(seq_length=seq_length, latent_space_size=latent_space_size).to(device)
 
 # Define loss function and optimizer
 criterion = nn.MSELoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-# Training loop with dual loss
-num_epochs = 2000
 for epoch in range(num_epochs):
     running_loss_with_skip = 0.0
     running_loss_no_skip = 0.0
@@ -175,9 +180,9 @@ latent_reps = model.encode(test_inputs)
 test_outputs_no_skip = model.decode(latent_reps)
 
 # Convert to numpy for plotting
-test_inputs_np = test_inputs.squeeze().detach().numpy()
-test_outputs_with_skip_np = test_outputs_with_skip.squeeze().detach().numpy()
-test_outputs_no_skip_np = test_outputs_no_skip.squeeze().detach().numpy()
+test_inputs_np = test_inputs.squeeze().detach().cpu().numpy()
+test_outputs_with_skip_np = test_outputs_with_skip.squeeze().detach().cpu().numpy()
+test_outputs_no_skip_np = test_outputs_no_skip.squeeze().detach().cpu().numpy()
 
 # Plot original, reconstructed (with skip connections), and reconstructed from latent
 n = 5  # Number of samples to plot
