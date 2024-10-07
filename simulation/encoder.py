@@ -10,10 +10,10 @@ from generate import generate_data, generate_qd_data
 import matplotlib.pyplot as plt
 
 # Set the latent space size variable
-latent_space_size = 64  # You can change this value to any desired latent space size
+latent_space_size = 32  # You can change this value to any desired latent space size
 
 # Generate data
-num_samples = 100
+num_samples = 200
 seq_length = 1000
 data = generate_data(num_samples, seq_length)
 qd_data, parameters = generate_qd_data(num_samples, seq_length)
@@ -135,7 +135,7 @@ criterion = nn.MSELoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 # Training loop with dual loss
-num_epochs = 1000
+num_epochs = 2000
 for epoch in range(num_epochs):
     running_loss_with_skip = 0.0
     running_loss_no_skip = 0.0
