@@ -5,13 +5,11 @@ import matplotlib.pyplot as plt
 import streamlit as st
 from typing import List, Dict, Any
 from scipy.signal import find_peaks
-
 from parameters import generate_parameters
 from qd import generate_quantum_dot_spectrum
+from vary_parameters import generate_parameter_variators
 
 st.title("Quantum Dot Spectrum Simulation")
-
-from vary_parameters import generate_parameter_variators
 
 (
     energies,
@@ -42,7 +40,6 @@ spectrum = generate_quantum_dot_spectrum(
 )
 
 st.sidebar.header("Peak Detection Parameters")
-
 
 peaks, properties = find_peaks(spectrum, prominence=prominence, distance=20)
 

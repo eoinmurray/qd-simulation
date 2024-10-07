@@ -6,7 +6,8 @@
 2. In a terminal now equipped with the `conda` command run:
 
 ```
-conda env create -f environment.yml
+conda create spectrum
 conda activate spectrum
+conda install streamlit matplotlib numpy scipy watchdog
 streamlit run simulation/streamlit_app.py
 ```

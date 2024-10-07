@@ -1,0 +1,1 @@
+streamlit run simulation/streamlit_app.py
