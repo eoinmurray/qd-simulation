@@ -98,22 +98,22 @@ class Conv1dAutoEncoder(nn.Module):
 
         # Decoder: Transposed convolutions for upsampling
         self.dec4 = nn.Sequential(
-            nn.ConvTranspose1d(256, 128, kernel_size=2, stride=2),
+            nn.ConvTranspose1d(256, 128, kernel_size=3, stride=3, output_padding=1),
             nn.BatchNorm1d(128),
             nn.ReLU(True)
         )
         self.dec3 = nn.Sequential(
-            nn.ConvTranspose1d(128, 64, kernel_size=2, stride=2),
+            nn.ConvTranspose1d(128, 64, kernel_size=3, stride=3),
             nn.BatchNorm1d(64),
             nn.ReLU(True)
         )
         self.dec2 = nn.Sequential(
-            nn.ConvTranspose1d(64, 32, kernel_size=2, stride=2),
+            nn.ConvTranspose1d(64, 32, kernel_size=3, stride=3),
             nn.BatchNorm1d(32),
             nn.ReLU(True)
         )
         self.dec1 = nn.Sequential(
-            nn.ConvTranspose1d(32, 1, kernel_size=2, stride=2, output_padding=0),
+            nn.ConvTranspose1d(32, 1, kernel_size=3, stride=3, output_padding=1),
             nn.Sigmoid()  # Output scaled between 0 and 1
         )
 
