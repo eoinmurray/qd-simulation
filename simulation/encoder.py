@@ -14,11 +14,11 @@ if torch.cuda.is_available():
 else:
     device = torch.device("cpu")
 
-latent_space_size = 16  # Updated to match the paper
-num_epochs = 50
+latent_space_size = 64  # Updated to match the paper
+num_epochs = 100
 num_samples = 200
 seq_length = 1000
-batch_size = 512
+batch_size = 32
 
 data = generate_data(num_samples, seq_length)
 qd_data, parameters = generate_qd_data(num_samples, seq_length)
