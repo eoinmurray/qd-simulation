@@ -15,8 +15,7 @@ def generate_data(num_samples, seq_length):
             peak_position = np.random.randint(0, seq_length)
             peak_height = np.random.uniform(1, 5)
             series[peak_position] = peak_height
-            # Normalize data but keep peak values prominent
-            max_value = series.max()  # Use the 99th percentile to avoid extreme peaks
+            max_value = series.max()
             series = series / max_value
             series = np.clip(series, 0, 1)
         data[i] = series

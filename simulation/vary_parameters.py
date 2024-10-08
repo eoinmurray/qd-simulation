@@ -9,7 +9,7 @@ def generate_parameter_variators(
     fine_structure_splitting_range=(-0.03, 0.03),
     power_range=(2.0, 4.0),
     polarizer_angle_deg_range=(0.0, 90.0),
-    noise_range=(0.0, 0.00001),
+    noise_range=(0.0, 0.0),
     prominence_range=(0.01, 0.02),
     exciton_energy=1588.0,
     exciton_linewidth=0.01,
