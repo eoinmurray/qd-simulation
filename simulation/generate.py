@@ -50,9 +50,12 @@ def generate_qd_data(num_samples, seq_length, normalization=True):
             particles=parameters['particles'],
             polarizer_angle_rad=parameters['polarizer_angle_deg'] * math.pi / 180,
             power=parameters['power'],
-            noise=noise
         )
-        data[i] = spectrum / spectrum.max()
+
+        gaussian_noise = np.random.normal(0, noise, len(energies))
+        spectrum = spectrum/spectrum.max()
+
+        data[i] = spectrum + gaussian_noise
 
         parameters['energies'] = energies
         parameters['exciton_energy'] = exciton_energy
@@ -74,8 +77,8 @@ if __name__ == "__main__":
     plt.figure(figsize=(12, 3))
     for i in range(3):
         plt.subplot(1, 3, i+1)
-        plt.plot(data[i], label='Random Peaks')
-        plt.plot(qd_data[i], label='Quantum Dot')
+        # plt.plot(data[i], label='Random Peaks')
+        plt.plot(_['energies'], qd_data[i], label='Quantum Dot')
 
     plt.legend()
     plt.title(f'Sample {i+1}')

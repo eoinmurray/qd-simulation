@@ -29,7 +29,6 @@ def generate_quantum_dot_spectrum(
     particles: List[Dict[str, Any]],
     polarizer_angle_rad,
     power,
-    noise=0.0,
 ) -> List[Dict[str, Any]]:
     """
     Spectrum generation function: Models the spectrum of an arbitrary number of excitonic particles with polarization effects.
@@ -94,10 +93,8 @@ def generate_quantum_dot_spectrum(
 
         # Store individual particle intensity
         particle_intensities[particle['name']] = particle_intensity.tolist()
-
-    gaussian_noise = np.random.normal(0, noise, len(energies))
-
-    return total_intensity + gaussian_noise
+    
+    return total_intensity
 
 
 if __name__ == "__main__":
@@ -123,10 +120,9 @@ if __name__ == "__main__":
     ]
     polarizer_angle_rad = 45 * np.pi / 180
     power = 3.0
-    noise = 0.01
 
     # Generate quantum dot spectrum
-    spectrum = generate_quantum_dot_spectrum(energies, particles, polarizer_angle_rad, power, noise)
+    spectrum = generate_quantum_dot_spectrum(energies, particles, polarizer_angle_rad, power)
 
     # Plot the generated spectrum
     plt.figure(figsize=(12, 4))
