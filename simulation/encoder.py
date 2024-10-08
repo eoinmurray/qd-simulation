@@ -13,7 +13,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Hyperparameters
 latent_space_size = 16
-num_epochs = 200
+num_epochs = 500
 num_samples = 1000  # Increased from 200
 seq_length = 1000
 batch_size = 512
