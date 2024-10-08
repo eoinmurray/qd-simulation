@@ -5,31 +5,32 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 from parameters import generate_parameters
 from qd import generate_quantum_dot_spectrum
-from vary_parameters import generate_parameter_variators
 from generate import generate_data, generate_qd_data
 import matplotlib.pyplot as plt
 
-if torch.cuda.is_available():
-    device = torch.device("cuda")
-else:
-    device = torch.device("cpu")
+# Check for CUDA availability
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-latent_space_size = 64  # Updated to match the paper
-num_epochs = 100
-num_samples = 200
+# Hyperparameters
+latent_space_size = 16
+num_epochs = 200
+num_samples = 1000  # Increased from 200
 seq_length = 1000
-batch_size = 32
+batch_size = 512
+learning_rate = 0.0005  # Adjusted learning rate
 
+# Generate data
 data = generate_data(num_samples, seq_length)
 qd_data, parameters = generate_qd_data(num_samples, seq_length)
 data = qd_data
+
+# Normalize data to have zero mean and unit variance
 data_mean = data.mean()
 data_std = data.std()
 data = (data - data_mean) / data_std
-data = torch.tensor(data, dtype=torch.float32).unsqueeze(1)
-data = data.to(device)
+data = torch.tensor(data, dtype=torch.float32).unsqueeze(1).to(device)
 
-batch_size = 32
+# Create dataset and dataloader
 dataset = TensorDataset(data, data)
 dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
@@ -37,11 +38,14 @@ dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 class ResidualBlock(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size=3, stride=1, padding=1):
         super(ResidualBlock, self).__init__()
-        self.conv1 = nn.Conv1d(in_channels, out_channels, kernel_size=kernel_size, stride=stride, padding=padding)
+        self.conv1 = nn.Conv1d(in_channels, out_channels, kernel_size=kernel_size,
+                               stride=stride, padding=padding)
         self.bn1 = nn.BatchNorm1d(out_channels)
-        self.conv2 = nn.Conv1d(out_channels, out_channels, kernel_size=kernel_size, stride=stride, padding=padding)
+        self.conv2 = nn.Conv1d(out_channels, out_channels, kernel_size=kernel_size,
+                               stride=stride, padding=padding)
         self.bn2 = nn.BatchNorm1d(out_channels)
-        self.skip = nn.Conv1d(in_channels, out_channels, kernel_size=1) if in_channels != out_channels else nn.Identity()
+        self.skip = nn.Conv1d(in_channels, out_channels, kernel_size=1) \
+                    if in_channels != out_channels else nn.Identity()
     
     def forward(self, x):
         residual = self.skip(x)
@@ -89,6 +93,7 @@ class Conv1dAutoEncoder(nn.Module):
 
         self.fc2 = nn.Linear(latent_space_size, self.enc_output_size)
         self.unflatten = nn.Unflatten(1, self.enc_output_shape[1:])
+
         # Decoder: Transposed convolutions for upsampling
         self.dec4 = nn.Sequential(
             nn.ConvTranspose1d(256, 128, kernel_size=3, stride=3, output_padding=1),
@@ -105,9 +110,9 @@ class Conv1dAutoEncoder(nn.Module):
             nn.BatchNorm1d(32),
             nn.ReLU(True)
         )
+        # Removed Sigmoid activation
         self.dec1 = nn.Sequential(
-            nn.ConvTranspose1d(32, 1, kernel_size=3, stride=3, output_padding=1),
-            nn.Sigmoid()  # Output scaled between 0 and 1
+            nn.ConvTranspose1d(32, 1, kernel_size=3, stride=3, output_padding=1)
         )
 
     def encode(self, x):
@@ -129,69 +134,55 @@ class Conv1dAutoEncoder(nn.Module):
         return d1
 
     def forward(self, x):
-        e1 = self.enc1(x)
-        e2 = self.enc2(e1)
-        e3 = self.enc3(e2)
-        e4 = self.enc4(e3)
-        f = self.flatten(e4)
-        latent = self.fc1(f)
-        f = self.fc2(latent)
-        d4_input = self.unflatten(f)
-        d4 = self.dec4(d4_input)
-        d3 = self.dec3(d4)
-        d2 = self.dec2(d3)
-        d1 = self.dec1(d2)
-        return d1
+        latent = self.encode(x)
+        reconstructed = self.decode(latent)
+        return reconstructed
 
 # Initialize model
 model = Conv1dAutoEncoder(seq_length=seq_length, latent_space_size=latent_space_size).to(device)
 
-# Define loss function and optimizer
+# Define loss function and optimizer with adjusted learning rate and weight decay
 criterion = nn.MSELoss()
-optimizer = optim.Adam(model.parameters(), lr=0.001)
+optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-5)
 
-# Training loop
+# Training loop with simplified loss calculation
+losses = []
 for epoch in range(num_epochs):
-    running_loss_with_skip = 0.0
-    running_loss_no_skip = 0.0
+    running_loss = 0.0
     for inputs, _ in dataloader:
         optimizer.zero_grad()
-        outputs_with_skip = model(inputs)
-        latent = model.encode(inputs)
-        outputs_no_skip = model.decode(latent)
-
-        loss_with_skip = criterion(outputs_with_skip, inputs)
-        loss_no_skip = criterion(outputs_no_skip, inputs)
-
-        total_loss = loss_with_skip + loss_no_skip
-
-        total_loss.backward()
+        outputs = model(inputs)
+        loss = criterion(outputs, inputs)
+        loss.backward()
         optimizer.step()
-        running_loss_with_skip += loss_with_skip.item()
-        running_loss_no_skip += loss_no_skip.item()
-    
-    average_loss_with_skip = running_loss_with_skip / len(dataloader)
-    average_loss_no_skip = running_loss_no_skip / len(dataloader)
-    print(f"Epoch [{epoch+1}/{num_epochs}], Loss with skip: {average_loss_with_skip:.6f}, Loss without skip: {average_loss_no_skip:.6f}")
+        running_loss += loss.item()
+
+    average_loss = running_loss / len(dataloader)
+    losses.append(average_loss)
+    print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {average_loss:.6f}")
+
+# Plot loss curve
+plt.figure()
+plt.plot(range(1, num_epochs + 1), losses)
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.title('Training Loss Over Epochs')
+plt.show()
 
 # Test and plot results
 test_inputs, _ = next(iter(dataloader))
-
-test_outputs_with_skip = model(test_inputs)
-latent_reps = model.encode(test_inputs)
-test_outputs_no_skip = model.decode(latent_reps)
+test_inputs = test_inputs.to(device)
+test_outputs = model(test_inputs)
 
 test_inputs_np = test_inputs.squeeze().detach().cpu().numpy()
-test_outputs_with_skip_np = test_outputs_with_skip.squeeze().detach().cpu().numpy()
-test_outputs_no_skip_np = test_outputs_no_skip.squeeze().detach().cpu().numpy()
+test_outputs_np = test_outputs.squeeze().detach().cpu().numpy()
 
 n = 5
 for i in range(n):
     plt.figure(figsize=(12, 4))
-    plt.xlim([1583.5, 1587.5])
+    plt.xlim([1583.5, 1587.5])  # Adjust this range based on your data
     plt.plot(parameters['energies'], test_inputs_np[i], label='Original', linestyle='--')
-    plt.plot(parameters['energies'], test_outputs_with_skip_np[i], label='Reconstructed (with skip connections)', alpha=0.7)
-    plt.plot(parameters['energies'], test_outputs_no_skip_np[i], label='Reconstructed (from latent only)', alpha=0.7)
+    plt.plot(parameters['energies'], test_outputs_np[i], label='Reconstructed', alpha=0.7)
     plt.legend()
     plt.title(f'Sample {i+1}')
     plt.show()
