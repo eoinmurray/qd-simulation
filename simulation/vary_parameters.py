@@ -5,19 +5,19 @@ def generate_parameter_variators(
     randomize=False,
     energies_maxmin=(1580.0, 1600.0),
     exciton_energy_range=(1587.0, 1589.0),
-    exciton_linewidth_range=(0.00001, 0.4),
-    fine_structure_splitting_range=(-0.3, 0.3),
-    power_range=(0.0001, 4.0),
+    exciton_linewidth_range=(0.00001, 0.00004),
+    fine_structure_splitting_range=(-0.03, 0.03),
+    power_range=(2.0, 4.0),
     polarizer_angle_deg_range=(0.0, 90.0),
-    noise_range=(0.0, 1.0),
-    prominence_range=(0.01, 10.0),
+    noise_range=(0.0, 0.00001),
+    prominence_range=(0.01, 0.02),
     exciton_energy=1588.0,
     exciton_linewidth=0.01,
     fine_structure_splitting=0.0,
     power=3.0,
     polarizer_angle_deg=45.0,
     noise=0.0,
-    prominence=0.7
+    prominence=0.1
 ):
     # Energy Range
     energies = np.linspace(energies_maxmin[0], energies_maxmin[1], seq_length)

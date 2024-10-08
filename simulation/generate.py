@@ -70,7 +70,7 @@ if __name__ == "__main__":
     num_samples = 100
     seq_length = 1000
     data = generate_data(num_samples, seq_length)
-    qd_data = generate_qd_data(num_samples, seq_length)
+    qd_data, _ = generate_qd_data(num_samples, seq_length)
     
     plt.figure(figsize=(12, 3))
     for i in range(3):

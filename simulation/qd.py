@@ -98,3 +98,42 @@ def generate_quantum_dot_spectrum(
     gaussian_noise = np.random.normal(0, noise, len(energies))
 
     return total_intensity + gaussian_noise
+
+
+if __name__ == "__main__":
+    # Define parameters for generating quantum dot spectrum
+    energies = np.linspace(1580, 1600, 1000)
+    particles = [
+        {
+            'name': 'Exciton',
+            'energy': 1588.0,
+            'linewidth': 0.01,
+            'fss': 0.0,
+            'intensity_scaling': 1.0,
+            'power_dependence': 3.0
+        },
+        {
+            'name': 'Biexciton',
+            'energy': 1590.0,
+            'linewidth': 0.02,
+            'fss': 0.0,
+            'intensity_scaling': 0.5,
+            'power_dependence': 4.0
+        }
+    ]
+    polarizer_angle_rad = 45 * np.pi / 180
+    power = 3.0
+    noise = 0.01
+
+    # Generate quantum dot spectrum
+    spectrum = generate_quantum_dot_spectrum(energies, particles, polarizer_angle_rad, power, noise)
+
+    # Plot the generated spectrum
+    plt.figure(figsize=(12, 4))
+    plt.plot(energies, spectrum, label='Quantum Dot Spectrum')
+    plt.xlabel('Energy (meV)')
+    plt.ylabel('Intensity')
+    plt.title('Quantum Dot Spectrum')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
