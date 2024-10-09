@@ -14,7 +14,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Hyperparameters
 latent_space_size = 16
-num_epochs = 200
+num_epochs = 50
 num_samples = 1000
 seq_length = 1000
 batch_size = 512
@@ -192,6 +192,7 @@ regressor_model = QDRegressor(input_size).to(device)
 def confidence_loss(y_pred, y_true):
     s_pred, sigma = y_pred[:, 0], torch.exp(y_pred[:, 1])
     loss = torch.mean(((y_true - s_pred) ** 2) / (2 * sigma ** 2) + torch.log(sigma))
+    print('loss', loss)
     return loss
 
 regressor_optimizer = optim.Adam(regressor_model.parameters(), lr=0.001)
